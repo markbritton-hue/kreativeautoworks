@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossfit RSS Feeds</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #e63946;
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2rem;
+            color: white;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+        .back-link:hover { opacity: 1; text-decoration: underline; }
+        .feeds-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .feed-section {
+            margin-bottom: 40px;
+        }
+        .feed-section h2 {
+            font-size: 1.4rem;
+            color: #e63946;
+            border-bottom: 2px solid #e63946;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .feed-item {
+            background-color: #16213e;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 12px;
+            transition: transform 0.15s;
+        }
+        .feed-item:hover {
+            transform: translateX(5px);
+        }
+        .feed-item a {
+            color: #a8dadc;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .feed-item a:hover { text-decoration: underline; }
+        .feed-item .date {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        .feed-item .description {
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 1.1rem;
+        }
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #e63946;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Crossfit RSS Feeds</h1>
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
+    </header>
+
+    <div class="feeds-container">
+        <div class="feed-section">
+            <h2>CrossFit.com</h2>
+            <div id="feed-crossfit" class="loading">Loading feed...</div>
+        </div>
+        <div class="feed-section">
+            <h2>The Barbell Spin - CrossFit News</h2>
+            <div id="feed-barbell" class="loading">Loading feed...</div>
+        </div>
+        <div class="feed-section">
+            <h2>Morning Chalk Up</h2>
+            <div id="feed-morningchalkup" class="loading">Loading feed...</div>
+        </div>
+    </div>
+
+    <script>
+        const feeds = [
+            { id: 'feed-crossfit', url: 'https://www.crossfit.com/feed' },
+            { id: 'feed-barbell', url: 'https://thebarbellspin.com/feed/' },
+            { id: 'feed-morningchalkup', url: 'https://morningchalkup.com/feed/' }
+        ];
+
+        async function loadFeed(feedUrl, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=8`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status !== 'ok') {
+                    throw new Error(data.message || 'Failed to load feed');
+                }
+
+                if (!data.items || data.items.length === 0) {
+                    container.innerHTML = '<p class="error">No articles found.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.items.map(item => {
+                    const date = new Date(item.pubDate).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    });
+                    const desc = item.description
+                        ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...'
+                        : '';
+                    return `
+                        <div class="feed-item">
+                            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
+                            <div class="date">${date}</div>
+                            ${desc ? `<div class="description">${desc}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p class="error">Could not load feed. ${err.message}</p>`;
+            }
+        }
+
+        feeds.forEach(feed => loadFeed(feed.url, feed.id));
+    </script>
+</body>
+</html>
