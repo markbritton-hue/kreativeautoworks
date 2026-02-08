@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firm Foundation Ministries - Live Stream</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #eee;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #1d4ed8;
+            padding: 20px;
+            text-align: center;
+        }
+        header img {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+        header h1 {
+            font-size: 1.8rem;
+            color: white;
+        }
+        header p {
+            color: rgba(255,255,255,0.8);
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+        .back-link:hover { opacity: 1; text-decoration: underline; }
+        .stream-container {
+            max-width: 960px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .player-wrapper {
+            background-color: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .player-wrapper .boxcast-widget {
+            width: 100%;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            color: #60a5fa;
+            margin: 30px 0 15px;
+        }
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+        .archive-card {
+            background-color: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .archive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .archive-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .archive-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background-color: #0f172a;
+        }
+        .archive-card .card-body {
+            padding: 14px;
+        }
+        .archive-card .card-title {
+            color: #93c5fd;
+            font-weight: bold;
+            font-size: 1rem;
+            line-height: 1.3;
+        }
+        .archive-card .card-date {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://uploads.boxcast.com/ccuf7gyuusz1js8pq5iq/2020-01/ukmgpoy4olijfe5rsxdf/ffmlogobwfix1280.png" alt="Firm Foundation Ministries Logo">
+        <h1>Firm Foundation Ministries</h1>
+        <p>Centreville, MI - Live Stream</p>
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
+    </header>
+
+    <div class="stream-container">
+        <div class="player-wrapper">
+            <div id="boxcast-widget-hliyhyin5gf1pbgjpfgi"></div>
+        </div>
+
+        <h2 class="section-title">Recent Broadcasts</h2>
+        <div id="archive" class="loading">Loading past broadcasts...</div>
+    </div>
+
+    <script src="https://js.boxcast.com/v3.min.js"></script>
+    <script>
+        boxcast('#boxcast-widget-hliyhyin5gf1pbgjpfgi').loadChannel('hliyhyin5gf1pbgjpfgi', {
+            showTitle: true,
+            showDescription: true,
+            showHighlights: true,
+            showCountdown: true,
+            defaultVideo: 'next',
+            market: 'house-of-worship'
+        });
+
+        async function loadArchive() {
+            const container = document.getElementById('archive');
+            try {
+                const channelId = 'hyh7pqi1fkavz41pmzps';
+                const res = await fetch(`https://rest.boxcast.com/channels/${channelId}/broadcasts?l=9&s=-starts_at`);
+                const broadcasts = await res.json();
+
+                if (!broadcasts || broadcasts.length === 0) {
+                    container.innerHTML = '<p>No past broadcasts found.</p>';
+                    return;
+                }
+
+                container.className = 'archive-grid';
+                container.innerHTML = broadcasts.map(b => {
+                    const date = new Date(b.starts_at).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                    });
+                    const thumb = b.preview || b.poster || '';
+                    const thumbHtml = thumb
+                        ? `<img src="${thumb}" alt="">`
+                        : `<div style="height:160px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:2rem;">&#9654;</div>`;
+                    return `
+                        <div class="archive-card">
+                            <a href="https://boxcast.tv/broadcast/${b.id}" target="_blank" rel="noopener">
+                                ${thumbHtml}
+                                <div class="card-body">
+                                    <div class="card-title">${b.name}</div>
+                                    <div class="card-date">${date}</div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color:#ef4444;">Could not load past broadcasts.</p>';
+            }
+        }
+
+        loadArchive();
+    </script>
+</body>
+</html>
