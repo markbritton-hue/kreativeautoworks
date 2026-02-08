@@ -31,47 +31,85 @@
         }
         .back-link:hover { opacity: 1; text-decoration: underline; }
         .feeds-container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
         }
         .feed-section {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
         .feed-section h2 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: #e63946;
             border-bottom: 2px solid #e63946;
             padding-bottom: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .feed-item {
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
             background-color: #16213e;
-            border-radius: 8px;
-            padding: 18px;
-            margin-bottom: 12px;
-            transition: transform 0.15s;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
         }
-        .feed-item:hover {
-            transform: translateX(5px);
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
-        .feed-item a {
-            color: #a8dadc;
+        .card a {
             text-decoration: none;
-            font-size: 1.1rem;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #0f3460;
+        }
+        .card-img-placeholder {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #0f3460, #e63946);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-title {
+            color: #a8dadc;
+            font-size: 1.05rem;
             font-weight: bold;
+            line-height: 1.4;
+            margin-bottom: 8px;
         }
-        .feed-item a:hover { text-decoration: underline; }
-        .feed-item .date {
-            color: #888;
-            font-size: 0.85rem;
-            margin-top: 5px;
+        .card-date {
+            color: #e63946;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
         }
-        .feed-item .description {
-            color: #ccc;
-            font-size: 0.95rem;
-            margin-top: 8px;
+        .card-desc {
+            color: #bbb;
+            font-size: 0.9rem;
             line-height: 1.5;
+            flex: 1;
         }
         .loading {
             text-align: center;
@@ -115,10 +153,18 @@
             { id: 'feed-morningchalkup', url: 'https://morningchalkup.com/feed/' }
         ];
 
+        function getImageFromItem(item) {
+            if (item.thumbnail && item.thumbnail.length > 0) return item.thumbnail;
+            if (item.enclosure && item.enclosure.link) return item.enclosure.link;
+            const imgMatch = item.description && item.description.match(/<img[^>]+src="([^"]+)"/);
+            if (imgMatch) return imgMatch[1];
+            return null;
+        }
+
         async function loadFeed(feedUrl, containerId) {
             const container = document.getElementById(containerId);
             try {
-                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=8`;
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
@@ -131,18 +177,29 @@
                     return;
                 }
 
-                container.innerHTML = data.items.map(item => {
+                container.className = 'card-grid';
+                container.innerHTML = data.items.slice(0, 8).map(item => {
                     const date = new Date(item.pubDate).toLocaleDateString('en-US', {
                         year: 'numeric', month: 'short', day: 'numeric'
                     });
                     const desc = item.description
-                        ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...'
+                        ? item.description.replace(/<[^>]*>/g, '').substring(0, 120) + '...'
                         : '';
+                    const img = getImageFromItem(item);
+                    const imgHtml = img
+                        ? `<img class="card-img" src="${img}" alt="" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>&#9851;</div>'">`
+                        : '<div class="card-img-placeholder">&#9851;</div>';
+
                     return `
-                        <div class="feed-item">
-                            <a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>
-                            <div class="date">${date}</div>
-                            ${desc ? `<div class="description">${desc}</div>` : ''}
+                        <div class="card">
+                            <a href="${item.link}" target="_blank" rel="noopener">
+                                ${imgHtml}
+                                <div class="card-body">
+                                    <div class="card-date">${date}</div>
+                                    <div class="card-title">${item.title}</div>
+                                    <div class="card-desc">${desc}</div>
+                                </div>
+                            </a>
                         </div>
                     `;
                 }).join('');
