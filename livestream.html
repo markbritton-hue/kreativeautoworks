@@ -91,76 +91,11 @@
     <div class="stream-container">
         <div class="player-wrapper">
             <iframe
-                src="https://www.youtube.com/embed/live_stream?channel=UC0wb94QvWl8RA1pCcRPmfcQ"
+                src="https://www.youtube.com/embed/videoseries?list=UU0wb94QvWl8RA1pCcRPmfcQ"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
             </iframe>
         </div>
-
-        <h2 class="broadcast-title" style="margin-top: 30px;">Latest Upload</h2>
-        <div id="latest-video" class="loading">Loading latest video...</div>
     </div>
-
-    <script>
-        async function loadLatestVideo() {
-            const container = document.getElementById('latest-video');
-            const channelId = 'UC0wb94QvWl8RA1pCcRPmfcQ';
-
-            try {
-                const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`);
-                const text = await res.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, 'text/xml');
-                const entry = xml.querySelector('entry');
-
-                if (!entry) {
-                    // Fallback: embed the channel's latest video via playlist
-                    const playlistId = 'UU' + channelId.substring(2);
-                    container.innerHTML = `
-                        <div class="player-wrapper">
-                            <iframe
-                                src="https://www.youtube.com/embed/videoseries?list=${playlistId}"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                            </iframe>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const videoId = entry.querySelector('videoId').textContent;
-                const title = entry.querySelector('title').textContent;
-                const published = new Date(entry.querySelector('published').textContent).toLocaleDateString('en-US', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                });
-
-                container.innerHTML = `
-                    <p class="broadcast-date">${published}</p>
-                    <p class="broadcast-title">${title}</p>
-                    <div class="player-wrapper" style="margin-top: 15px;">
-                        <iframe
-                            src="https://www.youtube.com/embed/${videoId}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            } catch (err) {
-                // Fallback: embed the channel uploads playlist directly
-                const playlistId = 'UU' + channelId.substring(2);
-                container.innerHTML = `
-                    <div class="player-wrapper">
-                        <iframe
-                            src="https://www.youtube.com/embed/videoseries?list=${playlistId}"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            }
-        }
-
-        loadLatestVideo();
-    </script>
 </body>
 </html>
