@@ -89,41 +89,78 @@
     </header>
 
     <div class="stream-container">
-        <div id="latest-broadcast" class="loading">Loading latest broadcast...</div>
+        <div class="player-wrapper">
+            <iframe
+                src="https://www.youtube.com/embed/live_stream?channel=UC0wb94QvWl8RA1pCcRPmfcQ"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <h2 class="broadcast-title" style="margin-top: 30px;">Latest Upload</h2>
+        <div id="latest-video" class="loading">Loading latest video...</div>
     </div>
 
     <script>
-        async function loadLatest() {
-            const container = document.getElementById('latest-broadcast');
-            try {
-                const channelId = 'hyh7pqi1fkavz41pmzps';
-                const res = await fetch(`https://rest.boxcast.com/channels/${channelId}/broadcasts?l=1&s=-starts_at`);
-                const broadcasts = await res.json();
+        async function loadLatestVideo() {
+            const container = document.getElementById('latest-video');
+            const channelId = 'UC0wb94QvWl8RA1pCcRPmfcQ';
 
-                if (!broadcasts || broadcasts.length === 0) {
-                    container.innerHTML = '<p class="error">No broadcasts found.</p>';
+            try {
+                const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`);
+                const text = await res.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
+                const entry = xml.querySelector('entry');
+
+                if (!entry) {
+                    // Fallback: embed the channel's latest video via playlist
+                    const playlistId = 'UU' + channelId.substring(2);
+                    container.innerHTML = `
+                        <div class="player-wrapper">
+                            <iframe
+                                src="https://www.youtube.com/embed/videoseries?list=${playlistId}"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
                     return;
                 }
 
-                const b = broadcasts[0];
-                const date = new Date(b.starts_at).toLocaleDateString('en-US', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                    hour: 'numeric', minute: '2-digit'
+                const videoId = entry.querySelector('videoId').textContent;
+                const title = entry.querySelector('title').textContent;
+                const published = new Date(entry.querySelector('published').textContent).toLocaleDateString('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                 });
 
                 container.innerHTML = `
-                    <h2 class="broadcast-title">${b.name}</h2>
-                    <p class="broadcast-date">${date}</p>
-                    <div class="player-wrapper">
-                        <iframe src="https://boxcast.tv/broadcast/${b.id}?embed=1" allowfullscreen></iframe>
+                    <p class="broadcast-date">${published}</p>
+                    <p class="broadcast-title">${title}</p>
+                    <div class="player-wrapper" style="margin-top: 15px;">
+                        <iframe
+                            src="https://www.youtube.com/embed/${videoId}"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
                     </div>
                 `;
             } catch (err) {
-                container.innerHTML = '<p class="error">Could not load the latest broadcast.</p>';
+                // Fallback: embed the channel uploads playlist directly
+                const playlistId = 'UU' + channelId.substring(2);
+                container.innerHTML = `
+                    <div class="player-wrapper">
+                        <iframe
+                            src="https://www.youtube.com/embed/videoseries?list=${playlistId}"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
             }
         }
 
-        loadLatest();
+        loadLatestVideo();
     </script>
 </body>
 </html>
