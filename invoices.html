@@ -285,6 +285,12 @@
             <i class="fas fa-file-invoice-dollar me-3"></i>Invoices
         </h1>
 
+        <div class="text-end mb-3" data-aos="fade-up" data-aos-delay="25">
+            <button class="btn btn-sm text-white px-3 py-2" style="background:linear-gradient(135deg,#10b981,#059669); font-weight:600; border:none; border-radius:8px;" onclick="window.exportCSV()">
+                <i class="fas fa-file-csv me-2"></i>Export to CSV
+            </button>
+        </div>
+
         <!-- Summary Cards -->
         <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="50">
             <div class="col-md-3">
@@ -952,6 +958,39 @@
             }
 
             document.body.removeChild(container);
+        };
+
+        // --- Export CSV ---
+        window.exportCSV = () => {
+            if (allInvoices.length === 0) {
+                alert("No invoices to export.");
+                return;
+            }
+            const headers = ["Invoice #", "Client", "Date", "Due Date", "Status", "Subtotal", "Tax Rate %", "Tax", "Total", "Notes", "Line Items"];
+            const rows = allInvoices.map(inv => {
+                const lineItemsStr = (inv.lineItems || []).map(li => `${li.description} (${li.quantity} x $${Number(li.unitPrice).toFixed(2)})`).join("; ");
+                return [
+                    inv.invoiceNumber || "",
+                    inv.clientName || "",
+                    inv.date || "",
+                    inv.dueDate || "",
+                    inv.status || "",
+                    Number(inv.subtotal || 0).toFixed(2),
+                    inv.taxRate || 0,
+                    Number(inv.tax || 0).toFixed(2),
+                    Number(inv.total || 0).toFixed(2),
+                    (inv.notes || "").replace(/"/g, '""'),
+                    lineItemsStr.replace(/"/g, '""')
+                ];
+            });
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `invoices_export_${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
         };
 
         // --- Search ---
