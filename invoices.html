@@ -291,6 +291,7 @@
                 <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(100,116,139,0.25); border-radius:12px; padding:16px;" class="text-center">
                     <div id="summaryDraft" style="font-size:1.8rem; font-weight:800; color:#94a3b8;">0</div>
                     <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-file me-1"></i> Drafts</div>
+                    <div id="summaryDraftTotal" style="color:#94a3b8; font-size:0.85rem; font-weight:600; margin-top:4px;">$0.00</div>
                 </div>
             </div>
             <div class="col-md-3">
@@ -528,17 +529,18 @@
 
         function updateSummary() {
             let draft = 0, sent = 0, paid = 0, overdue = 0;
-            let sentTotal = 0, paidTotal = 0, overdueTotal = 0;
+            let draftTotal = 0, sentTotal = 0, paidTotal = 0, overdueTotal = 0;
             allInvoices.forEach(inv => {
                 const total = Number(inv.total) || 0;
                 switch ((inv.status || "").toLowerCase()) {
-                    case "draft": draft++; break;
+                    case "draft": draft++; draftTotal += total; break;
                     case "sent": sent++; sentTotal += total; break;
                     case "paid": paid++; paidTotal += total; break;
                     case "overdue": overdue++; overdueTotal += total; break;
                 }
             });
             document.getElementById("summaryDraft").textContent = draft;
+            document.getElementById("summaryDraftTotal").textContent = `$${draftTotal.toFixed(2)}`;
             document.getElementById("summarySent").textContent = sent;
             document.getElementById("summarySentTotal").textContent = `$${sentTotal.toFixed(2)}`;
             document.getElementById("summaryPaid").textContent = paid;
