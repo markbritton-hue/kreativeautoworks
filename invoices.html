@@ -840,7 +840,6 @@
 
         // --- Init ---
         AOS.init({ duration: 800, once: true });
-        loadBusinessInfo();
         document.getElementById("invoiceNumber").value = generateInvoiceNumber();
         document.getElementById("invoiceDate").value = new Date().toISOString().split("T")[0];
         addLineItem();
