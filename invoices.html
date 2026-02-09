@@ -791,7 +791,8 @@
                 </tr>
             `).join("");
 
-            const logoHtml = inv.logoUrl ? `<img src="${escapeHtml(inv.logoUrl)}" style="max-height:80px; max-width:250px; margin-bottom:10px;" alt="Logo">` : "";
+            const logoSrc = inv.logoUrl || "Logo.png";
+            const logoHtml = `<img src="${escapeHtml(logoSrc)}" style="max-height:80px; max-width:250px; margin-bottom:10px;" alt="Logo">`;
 
             const statusColor = {
                 "Paid": "#10b981", "Sent": "#f59e0b", "Overdue": "#ef4444", "Draft": "#6b7280"
