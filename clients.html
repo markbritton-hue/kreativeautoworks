@@ -35,6 +35,12 @@
             background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(96, 165, 250, 0.2);
             border-radius: 16px;
+            position: sticky;
+            top: 80px;
+        }
+        .card-form.editing {
+            border-color: rgba(250, 204, 21, 0.5);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.1);
         }
         .form-control, .form-control:focus {
             background: rgba(15, 23, 42, 0.6);
@@ -61,6 +67,24 @@
         .btn-add:hover {
             background: linear-gradient(135deg, #059669, #047857);
         }
+        .btn-update {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            font-weight: 600;
+        }
+        .btn-update:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+        }
+        .btn-cancel {
+            background: rgba(100, 116, 139, 0.3);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .btn-cancel:hover {
+            background: rgba(100, 116, 139, 0.5);
+            color: #e2e8f0;
+        }
         .client-card {
             background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(96, 165, 250, 0.15);
@@ -71,6 +95,10 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
             border-color: rgba(96, 165, 250, 0.3);
+        }
+        .client-card.active-edit {
+            border-color: rgba(250, 204, 21, 0.5);
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.1);
         }
         .client-name {
             color: #60a5fa;
@@ -84,6 +112,16 @@
         .client-detail i {
             color: #64748b;
             width: 20px;
+        }
+        .btn-edit {
+            background: rgba(250, 204, 21, 0.15);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+            color: #facc15;
+            font-size: 0.8rem;
+        }
+        .btn-edit:hover {
+            background: #facc15;
+            color: #1e293b;
         }
         .btn-delete {
             background: rgba(239, 68, 68, 0.15);
@@ -126,6 +164,28 @@
             font-size: 0.85rem;
             font-style: italic;
         }
+        .client-list-col {
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+        .client-list-col::-webkit-scrollbar {
+            width: 6px;
+        }
+        .client-list-col::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .client-list-col::-webkit-scrollbar-thumb {
+            background: rgba(96, 165, 250, 0.3);
+            border-radius: 3px;
+        }
+        .editing-badge {
+            background: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -135,59 +195,74 @@
         </a>
     </nav>
 
-    <div class="container pb-5">
+    <div class="container-fluid px-4 pb-5">
         <h1 class="page-title text-center mb-4" data-aos="fade-down">
             <i class="fas fa-users me-3"></i>Client Manager
         </h1>
 
-        <div class="card-form p-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-            <h5 class="mb-3 text-white"><i class="fas fa-user-plus me-2"></i>Add New Client</h5>
-            <form id="clientForm">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Name *</label>
-                        <input type="text" class="form-control" id="clientName" placeholder="Full name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" id="clientEmail" placeholder="email@example.com">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="clientPhone" placeholder="Phone number">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Company</label>
-                        <input type="text" class="form-control" id="clientCompany" placeholder="Company name">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Address</label>
-                        <input type="text" class="form-control" id="clientAddress" placeholder="Full address">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Notes</label>
-                        <textarea class="form-control" id="clientNotes" rows="2" placeholder="Any additional notes..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-add btn-lg text-white px-4">
-                            <i class="fas fa-plus me-2"></i>Add Client
-                        </button>
-                    </div>
+        <div class="row g-4">
+            <!-- Left: Client List -->
+            <div class="col-lg-7" data-aos="fade-right" data-aos-delay="100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <input type="text" id="searchBox" class="form-control search-box" placeholder="Search clients by name, email, company...">
+                    <span id="clientCount" class="client-count text-nowrap"></span>
                 </div>
-            </form>
-        </div>
 
-        <div class="d-flex align-items-center gap-3 mb-3" data-aos="fade-up" data-aos-delay="200">
-            <input type="text" id="searchBox" class="form-control search-box" placeholder="Search clients by name, email, company...">
-            <span id="clientCount" class="client-count text-nowrap"></span>
-        </div>
+                <div id="clientList" class="client-list-col"></div>
 
-        <div id="clientList"></div>
+                <div id="emptyState" class="empty-state text-center" style="display:none;">
+                    <i class="fas fa-user-slash d-block"></i>
+                    <p class="fs-5">No clients yet</p>
+                    <p>Add your first client using the form.</p>
+                </div>
+            </div>
 
-        <div id="emptyState" class="empty-state text-center" style="display:none;">
-            <i class="fas fa-user-slash d-block"></i>
-            <p class="fs-5">No clients yet</p>
-            <p>Add your first client using the form above.</p>
+            <!-- Right: Add/Edit Form -->
+            <div class="col-lg-5" data-aos="fade-left" data-aos-delay="200">
+                <div class="card-form p-4" id="formCard">
+                    <h5 class="mb-3 text-white" id="formTitle">
+                        <i class="fas fa-user-plus me-2" id="formIcon"></i>
+                        <span id="formTitleText">Add New Client</span>
+                    </h5>
+                    <form id="clientForm">
+                        <input type="hidden" id="editingId">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="clientName" placeholder="Full name" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="clientEmail" placeholder="email@example.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="clientPhone" placeholder="Phone number">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Company</label>
+                                <input type="text" class="form-control" id="clientCompany" placeholder="Company name">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-control" id="clientAddress" placeholder="Full address">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" id="clientNotes" rows="2" placeholder="Any additional notes..."></textarea>
+                            </div>
+                            <div class="col-12 d-flex gap-2">
+                                <button type="submit" class="btn btn-add btn-lg text-white px-4" id="submitBtn">
+                                    <i class="fas fa-plus me-2"></i>Add Client
+                                </button>
+                                <button type="button" class="btn btn-cancel btn-lg px-4" id="cancelBtn" style="display:none;" onclick="window.cancelEdit()">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -195,7 +270,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDLwbBlioEmnkTIUi9dTviNtAcnBR59ew0",
@@ -211,6 +286,7 @@
         const clientsRef = collection(db, "clients");
 
         let allClients = [];
+        let editingId = null;
 
         async function loadClients() {
             const q = query(clientsRef, orderBy("createdAt", "desc"));
@@ -246,12 +322,13 @@
             empty.style.display = "none";
 
             list.innerHTML = clients.map(c => `
-                <div class="client-card p-3 mb-3">
+                <div class="client-card p-3 mb-3 ${editingId === c.id ? 'active-edit' : ''}" id="card-${c.id}">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="flex-grow-1">
                             <div class="client-name mb-2">
                                 <i class="fas fa-user me-2"></i>${escapeHtml(c.name)}
                                 ${c.company ? `<span class="text-white-50 ms-2 fw-normal" style="font-size:0.85rem">@ ${escapeHtml(c.company)}</span>` : ""}
+                                ${editingId === c.id ? '<span class="editing-badge ms-2">EDITING</span>' : ""}
                             </div>
                             <div class="d-flex flex-wrap gap-3">
                                 ${c.email ? `<span class="client-detail"><i class="fas fa-envelope me-1"></i>${escapeHtml(c.email)}</span>` : ""}
@@ -260,9 +337,14 @@
                             </div>
                             ${c.notes ? `<div class="notes-text mt-2"><i class="fas fa-sticky-note me-1"></i>${escapeHtml(c.notes)}</div>` : ""}
                         </div>
-                        <button class="btn btn-delete btn-sm ms-3" onclick="window.deleteClient('${c.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="d-flex gap-2 ms-3">
+                            <button class="btn btn-edit btn-sm" onclick="window.editClient('${c.id}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="btn btn-delete btn-sm" onclick="window.deleteClient('${c.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join("");
@@ -274,36 +356,99 @@
             return div.innerHTML;
         }
 
+        function setFormMode(mode) {
+            const formCard = document.getElementById("formCard");
+            const titleText = document.getElementById("formTitleText");
+            const formIcon = document.getElementById("formIcon");
+            const submitBtn = document.getElementById("submitBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+
+            if (mode === "edit") {
+                formCard.classList.add("editing");
+                titleText.textContent = "Edit Client";
+                formIcon.className = "fas fa-user-edit me-2";
+                submitBtn.className = "btn btn-update btn-lg text-white px-4";
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Client';
+                cancelBtn.style.display = "inline-block";
+            } else {
+                formCard.classList.remove("editing");
+                titleText.textContent = "Add New Client";
+                formIcon.className = "fas fa-user-plus me-2";
+                submitBtn.className = "btn btn-add btn-lg text-white px-4";
+                submitBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Client';
+                cancelBtn.style.display = "none";
+                editingId = null;
+            }
+        }
+
+        window.editClient = (id) => {
+            const client = allClients.find(c => c.id === id);
+            if (!client) return;
+
+            editingId = id;
+            document.getElementById("clientName").value = client.name || "";
+            document.getElementById("clientEmail").value = client.email || "";
+            document.getElementById("clientPhone").value = client.phone || "";
+            document.getElementById("clientCompany").value = client.company || "";
+            document.getElementById("clientAddress").value = client.address || "";
+            document.getElementById("clientNotes").value = client.notes || "";
+
+            setFormMode("edit");
+            filterAndRender();
+            document.getElementById("formCard").scrollIntoView({ behavior: "smooth", block: "start" });
+        };
+
+        window.cancelEdit = () => {
+            editingId = null;
+            document.getElementById("clientForm").reset();
+            setFormMode("add");
+            filterAndRender();
+        };
+
         document.getElementById("clientForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector("button[type=submit]");
+            const btn = document.getElementById("submitBtn");
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+
+            const data = {
+                name: document.getElementById("clientName").value.trim(),
+                email: document.getElementById("clientEmail").value.trim(),
+                phone: document.getElementById("clientPhone").value.trim(),
+                company: document.getElementById("clientCompany").value.trim(),
+                address: document.getElementById("clientAddress").value.trim(),
+                notes: document.getElementById("clientNotes").value.trim(),
+            };
 
             try {
-                await addDoc(clientsRef, {
-                    name: document.getElementById("clientName").value.trim(),
-                    email: document.getElementById("clientEmail").value.trim(),
-                    phone: document.getElementById("clientPhone").value.trim(),
-                    company: document.getElementById("clientCompany").value.trim(),
-                    address: document.getElementById("clientAddress").value.trim(),
-                    notes: document.getElementById("clientNotes").value.trim(),
-                    createdAt: serverTimestamp()
-                });
+                if (editingId) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+                    await updateDoc(doc(db, "clients", editingId), data);
+                    editingId = null;
+                    setFormMode("add");
+                } else {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+                    data.createdAt = serverTimestamp();
+                    await addDoc(clientsRef, data);
+                }
                 e.target.reset();
                 await loadClients();
             } catch (err) {
-                alert("Error adding client: " + err.message);
+                alert("Error: " + err.message);
             }
 
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Client';
+            setFormMode(editingId ? "edit" : "add");
         });
 
         window.deleteClient = async (id) => {
             if (!confirm("Delete this client?")) return;
             try {
                 await deleteDoc(doc(db, "clients", id));
+                if (editingId === id) {
+                    editingId = null;
+                    document.getElementById("clientForm").reset();
+                    setFormMode("add");
+                }
                 await loadClients();
             } catch (err) {
                 alert("Error deleting client: " + err.message);
