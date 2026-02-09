@@ -285,6 +285,34 @@
             <i class="fas fa-file-invoice-dollar me-3"></i>Invoices
         </h1>
 
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="50">
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(100,116,139,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryDraft" style="font-size:1.8rem; font-weight:800; color:#94a3b8;">0</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-file me-1"></i> Drafts</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summarySent" style="font-size:1.8rem; font-weight:800; color:#f59e0b;">0</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-paper-plane me-1"></i> Sent</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryPaid" style="font-size:1.8rem; font-weight:800; color:#10b981;">0</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-check-circle me-1"></i> Paid</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(239,68,68,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryOverdue" style="font-size:1.8rem; font-weight:800; color:#ef4444;">0</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-exclamation-circle me-1"></i> Overdue</div>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
             <!-- Left: Invoice List -->
             <div class="col-lg-5" data-aos="fade-right" data-aos-delay="100">
@@ -495,7 +523,24 @@
             return div.innerHTML;
         }
 
+        function updateSummary() {
+            let draft = 0, sent = 0, paid = 0, overdue = 0;
+            allInvoices.forEach(inv => {
+                switch ((inv.status || "").toLowerCase()) {
+                    case "draft": draft++; break;
+                    case "sent": sent++; break;
+                    case "paid": paid++; break;
+                    case "overdue": overdue++; break;
+                }
+            });
+            document.getElementById("summaryDraft").textContent = draft;
+            document.getElementById("summarySent").textContent = sent;
+            document.getElementById("summaryPaid").textContent = paid;
+            document.getElementById("summaryOverdue").textContent = overdue;
+        }
+
         function renderInvoices(invoices) {
+            updateSummary();
             const list = document.getElementById("invoiceList");
             const empty = document.getElementById("emptyState");
             const count = document.getElementById("invoiceCount");

@@ -292,6 +292,12 @@
             const q = query(clientsRef, orderBy("createdAt", "desc"));
             const snapshot = await getDocs(q);
             allClients = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            allClients.sort((a, b) => {
+                const compA = (a.company || "").toLowerCase();
+                const compB = (b.company || "").toLowerCase();
+                if (compA !== compB) return compA.localeCompare(compB);
+                return (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase());
+            });
             filterAndRender();
         }
 
