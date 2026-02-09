@@ -371,10 +371,6 @@
                                 <input type="date" class="form-control" id="dueDate">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Payment Terms</label>
-                                <input type="text" class="form-control" id="paymentTerms" placeholder="Net 30, Due on receipt, etc.">
-                            </div>
-                            <div class="col-md-6">
                                 <label class="form-label">Status</label>
                                 <select class="form-select" id="invoiceStatus">
                                     <option value="Draft">Draft</option>
@@ -722,7 +718,7 @@
             document.getElementById("invoiceNumber").value = inv.invoiceNumber || "";
             document.getElementById("invoiceDate").value = inv.date || "";
             document.getElementById("dueDate").value = inv.dueDate || "";
-            document.getElementById("paymentTerms").value = inv.paymentTerms || "";
+
             document.getElementById("invoiceStatus").value = inv.status || "Draft";
             document.getElementById("taxRate").value = inv.taxRate || 0;
             document.getElementById("invoiceNotes").value = inv.notes || "";
@@ -766,7 +762,7 @@
                 invoiceNumber: document.getElementById("invoiceNumber").value.trim(),
                 date: document.getElementById("invoiceDate").value,
                 dueDate: document.getElementById("dueDate").value,
-                paymentTerms: document.getElementById("paymentTerms").value.trim(),
+                paymentTerms: "Make Checks Payable to StreamWave Productions",
                 lineItems: lineItems.map(li => ({ ...li })),
                 taxRate: taxRate,
                 subtotal: subtotal,
@@ -851,7 +847,7 @@
             <p style="margin:2px 0; font-size:0.95rem;"><strong>${escapeHtml(inv.invoiceNumber)}</strong></p>
             <p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Date: ${escapeHtml(inv.date)}</p>
             ${inv.dueDate ? `<p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Due: ${escapeHtml(inv.dueDate)}</p>` : ""}
-            ${inv.paymentTerms ? `<p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Terms: ${escapeHtml(inv.paymentTerms)}</p>` : ""}
+            <p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Make Checks Payable to StreamWave Productions</p>
             <span style="display:inline-block; margin-top:6px; padding:4px 14px; border-radius:20px; font-size:0.85rem; font-weight:600; color:#fff; background:${statusColor};">${escapeHtml(inv.status)}</span>
         </div>
     </div>
