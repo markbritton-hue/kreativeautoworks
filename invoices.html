@@ -707,6 +707,7 @@
 
             document.getElementById("invoiceNumber").value = generateInvoiceNumber();
             document.getElementById("invoiceDate").value = new Date().toISOString().split("T")[0];
+            setDueDate30();
             document.getElementById("invoiceStatus").value = "Draft";
             document.getElementById("taxRate").value = "0";
             lineItems = [];
@@ -999,7 +1000,17 @@
         // --- Init ---
         AOS.init({ duration: 800, once: true });
         document.getElementById("invoiceNumber").value = generateInvoiceNumber();
+        function setDueDate30() {
+            const dateVal = document.getElementById("invoiceDate").value;
+            if (dateVal) {
+                const d = new Date(dateVal);
+                d.setDate(d.getDate() + 30);
+                document.getElementById("dueDate").value = d.toISOString().split("T")[0];
+            }
+        }
+        document.getElementById("invoiceDate").addEventListener("change", setDueDate30);
         document.getElementById("invoiceDate").value = new Date().toISOString().split("T")[0];
+        setDueDate30();
         addLineItem();
         await loadClients();
         await loadInvoices();
