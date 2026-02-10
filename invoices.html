@@ -491,7 +491,7 @@
             allClients.forEach(c => {
                 const opt = document.createElement("option");
                 opt.value = c.id;
-                opt.textContent = c.name + (c.company ? ` (${c.company})` : "");
+                opt.textContent = c.company ? `${c.company} - ${c.name}` : c.name;
                 sel.appendChild(opt);
             });
         }
@@ -761,7 +761,7 @@
 
             const data = {
                 clientId: clientId,
-                clientName: clientObj ? clientObj.name : "",
+                clientName: clientObj ? (clientObj.company || clientObj.name) : "",
                 businessName: BUSINESS_NAME,
                 businessAddress: BUSINESS_ADDRESS,
                 logoUrl: "Logo.png",
