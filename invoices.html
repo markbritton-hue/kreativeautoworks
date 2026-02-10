@@ -814,6 +814,7 @@
             const clientAddr = clientObj ? (clientObj.address || "") : "";
             const clientEmail = clientObj ? (clientObj.email || "") : "";
             const clientCompany = clientObj ? (clientObj.company || "") : "";
+            const clientContactName = clientObj ? (clientObj.name || "") : "";
 
             const lineRows = (inv.lineItems || []).map(li => `
                 <tr>
@@ -855,13 +856,13 @@
             <p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Date: ${escapeHtml(inv.date)}</p>
             ${inv.dueDate ? `<p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Due: ${escapeHtml(inv.dueDate)}</p>` : ""}
             <p style="margin:2px 0; font-size:0.9rem; color:#6b7280;">Make Checks Payable to StreamWave Productions</p>
-            <span style="display:inline-block; margin-top:6px; padding:4px 14px; border-radius:20px; font-size:0.85rem; font-weight:600; color:#fff; background:${statusColor};">${escapeHtml(inv.status)}</span>
+            ${inv.status !== "Draft" ? `<span style="display:inline-block; margin-top:6px; padding:4px 14px; border-radius:20px; font-size:0.85rem; font-weight:600; color:#fff; background:${statusColor};">${escapeHtml(inv.status)}</span>` : ""}
         </div>
     </div>
     <div style="background:#f9fafb; border-radius:10px; padding:20px; margin-bottom:30px;">
         <p style="margin:0 0 4px 0; font-size:0.8rem; text-transform:uppercase; color:#9ca3af; font-weight:600;">Bill To</p>
-        <p style="margin:0; font-weight:600; font-size:1.1rem;">${escapeHtml(inv.clientName)}</p>
-        ${clientCompany ? `<p style="margin:2px 0; color:#6b7280;">${escapeHtml(clientCompany)}</p>` : ""}
+        ${clientCompany ? `<p style="margin:0; font-weight:600; font-size:1.1rem;">${escapeHtml(clientCompany)}</p>` : ""}
+        ${clientContactName ? `<p style="margin:2px 0; color:#4b5563;">${escapeHtml(clientContactName)}</p>` : ""}
         ${clientAddr ? `<p style="margin:2px 0; color:#6b7280;">${escapeHtml(clientAddr)}</p>` : ""}
         ${clientEmail ? `<p style="margin:2px 0; color:#6b7280;">${escapeHtml(clientEmail)}</p>` : ""}
     </div>
