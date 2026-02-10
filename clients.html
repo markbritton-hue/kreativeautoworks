@@ -31,17 +31,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .card-form {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(96, 165, 250, 0.2);
-            border-radius: 16px;
-            position: sticky;
-            top: 80px;
-        }
-        .card-form.editing {
-            border-color: rgba(250, 204, 21, 0.5);
-            box-shadow: 0 0 20px rgba(250, 204, 21, 0.1);
-        }
         .form-control, .form-control:focus {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(96, 165, 250, 0.3);
@@ -51,9 +40,7 @@
             box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25);
             border-color: #60a5fa;
         }
-        .form-control::placeholder {
-            color: #64748b;
-        }
+        .form-control::placeholder { color: #64748b; }
         .form-label {
             color: #94a3b8;
             font-weight: 600;
@@ -96,10 +83,6 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
             border-color: rgba(96, 165, 250, 0.3);
         }
-        .client-card.active-edit {
-            border-color: rgba(250, 204, 21, 0.5);
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.1);
-        }
         .client-name {
             color: #60a5fa;
             font-weight: 700;
@@ -119,20 +102,14 @@
             color: #facc15;
             font-size: 0.8rem;
         }
-        .btn-edit:hover {
-            background: #facc15;
-            color: #1e293b;
-        }
+        .btn-edit:hover { background: #facc15; color: #1e293b; }
         .btn-delete {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.3);
             color: #ef4444;
             font-size: 0.8rem;
         }
-        .btn-delete:hover {
-            background: #ef4444;
-            color: white;
-        }
+        .btn-delete:hover { background: #ef4444; color: white; }
         .search-box {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(96, 165, 250, 0.3);
@@ -143,9 +120,7 @@
             box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.25);
             border-color: #60a5fa;
         }
-        .search-box::placeholder {
-            color: #64748b;
-        }
+        .search-box::placeholder { color: #64748b; }
         .client-count {
             color: #64748b;
             font-size: 0.9rem;
@@ -165,26 +140,28 @@
             font-style: italic;
         }
         .client-list-col {
-            max-height: calc(100vh - 160px);
+            max-height: calc(100vh - 220px);
             overflow-y: auto;
         }
-        .client-list-col::-webkit-scrollbar {
-            width: 6px;
-        }
-        .client-list-col::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .client-list-col::-webkit-scrollbar { width: 6px; }
+        .client-list-col::-webkit-scrollbar-track { background: transparent; }
         .client-list-col::-webkit-scrollbar-thumb {
             background: rgba(96, 165, 250, 0.3);
             border-radius: 3px;
         }
-        .editing-badge {
-            background: rgba(250, 204, 21, 0.2);
-            color: #facc15;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-weight: 600;
+        .modal-content {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 16px;
+        }
+        .modal-header {
+            border-bottom: 1px solid rgba(96, 165, 250, 0.15);
+        }
+        .modal-footer {
+            border-top: 1px solid rgba(96, 165, 250, 0.15);
+        }
+        .btn-close-white {
+            filter: invert(1);
         }
     </style>
 </head>
@@ -204,12 +181,14 @@
             <i class="fas fa-users me-3"></i>Client Manager
         </h1>
 
-        <div class="row g-4">
-            <!-- Left: Client List -->
-            <div class="col-lg-7" data-aos="fade-right" data-aos-delay="100">
+        <div class="row justify-content-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-delay="100">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <input type="text" id="searchBox" class="form-control search-box" placeholder="Search clients by name, email, company...">
                     <span id="clientCount" class="client-count text-nowrap"></span>
+                    <button class="btn btn-add text-white text-nowrap px-3" onclick="window.openAddModal()">
+                        <i class="fas fa-plus me-2"></i>Add Client
+                    </button>
                 </div>
 
                 <div id="clientList" class="client-list-col"></div>
@@ -217,22 +196,34 @@
                 <div id="emptyState" class="empty-state text-center" style="display:none;">
                     <i class="fas fa-user-slash d-block"></i>
                     <p class="fs-5">No clients yet</p>
-                    <p>Add your first client using the form.</p>
+                    <p>Click "Add Client" to get started.</p>
                 </div>
             </div>
+        </div>
+    </div>
+    </div>
 
-            <!-- Right: Add/Edit Form -->
-            <div class="col-lg-5" data-aos="fade-left" data-aos-delay="200">
-                <div class="card-form p-4" id="formCard">
-                    <h5 class="mb-3 text-white" id="formTitle">
-                        <i class="fas fa-user-plus me-2" id="formIcon"></i>
-                        <span id="formTitleText">Add New Client</span>
+    <!-- Add/Edit Client Modal -->
+    <div class="modal fade" id="clientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="modalTitle">
+                        <i class="fas fa-user-plus me-2" id="modalIcon"></i>
+                        <span id="modalTitleText">Add New Client</span>
                     </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <form id="clientForm">
                         <input type="hidden" id="editingId">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Name *</label>
+                                <label class="form-label">Company *</label>
+                                <input type="text" class="form-control" id="clientCompany" placeholder="Company name" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Contact Name *</label>
                                 <input type="text" class="form-control" id="clientName" placeholder="Full name" required>
                             </div>
                             <div class="col-12">
@@ -244,10 +235,6 @@
                                 <input type="tel" class="form-control" id="clientPhone" placeholder="Phone number">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Company</label>
-                                <input type="text" class="form-control" id="clientCompany" placeholder="Company name">
-                            </div>
-                            <div class="col-12">
                                 <label class="form-label">Address</label>
                                 <input type="text" class="form-control" id="clientAddress" placeholder="Full address">
                             </div>
@@ -255,20 +242,19 @@
                                 <label class="form-label">Notes</label>
                                 <textarea class="form-control" id="clientNotes" rows="2" placeholder="Any additional notes..."></textarea>
                             </div>
-                            <div class="col-12 d-flex gap-2">
-                                <button type="submit" class="btn btn-add btn-lg text-white px-4" id="submitBtn">
-                                    <i class="fas fa-plus me-2"></i>Add Client
-                                </button>
-                                <button type="button" class="btn btn-cancel btn-lg px-4" id="cancelBtn" style="display:none;" onclick="window.cancelEdit()">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                            </div>
                         </div>
                     </form>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-add text-white px-4" id="submitBtn" onclick="window.submitForm()">
+                        <i class="fas fa-plus me-2"></i>Add Client
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -296,6 +282,7 @@
 
         let allClients = [];
         let editingId = null;
+        let clientModal;
 
         async function loadClients() {
             const q = query(clientsRef, orderBy("createdAt", "desc"));
@@ -337,13 +324,12 @@
             empty.style.display = "none";
 
             list.innerHTML = clients.map(c => `
-                <div class="client-card p-3 mb-3 ${editingId === c.id ? 'active-edit' : ''}" id="card-${c.id}">
+                <div class="client-card p-3 mb-3" id="card-${c.id}">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="flex-grow-1">
                             <div class="client-name mb-2">
                                 <i class="fas fa-building me-2"></i>${c.company ? escapeHtml(c.company) : escapeHtml(c.name)}
                                 ${c.company ? `<span class="text-white-50 ms-2 fw-normal" style="font-size:0.85rem">- ${escapeHtml(c.name)}</span>` : ""}
-                                ${editingId === c.id ? '<span class="editing-badge ms-2">EDITING</span>' : ""}
                             </div>
                             <div class="d-flex flex-wrap gap-3">
                                 ${c.email ? `<span class="client-detail"><i class="fas fa-envelope me-1"></i>${escapeHtml(c.email)}</span>` : ""}
@@ -371,57 +357,42 @@
             return div.innerHTML;
         }
 
-        function setFormMode(mode) {
-            const formCard = document.getElementById("formCard");
-            const titleText = document.getElementById("formTitleText");
-            const formIcon = document.getElementById("formIcon");
-            const submitBtn = document.getElementById("submitBtn");
-            const cancelBtn = document.getElementById("cancelBtn");
-
-            if (mode === "edit") {
-                formCard.classList.add("editing");
-                titleText.textContent = "Edit Client";
-                formIcon.className = "fas fa-user-edit me-2";
-                submitBtn.className = "btn btn-update btn-lg text-white px-4";
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Client';
-                cancelBtn.style.display = "inline-block";
-            } else {
-                formCard.classList.remove("editing");
-                titleText.textContent = "Add New Client";
-                formIcon.className = "fas fa-user-plus me-2";
-                submitBtn.className = "btn btn-add btn-lg text-white px-4";
-                submitBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Client';
-                cancelBtn.style.display = "none";
-                editingId = null;
-            }
-        }
+        // --- Modal ---
+        window.openAddModal = () => {
+            editingId = null;
+            document.getElementById("clientForm").reset();
+            document.getElementById("modalTitleText").textContent = "Add New Client";
+            document.getElementById("modalIcon").className = "fas fa-user-plus me-2";
+            const btn = document.getElementById("submitBtn");
+            btn.className = "btn btn-add text-white px-4";
+            btn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Client';
+            clientModal.show();
+        };
 
         window.editClient = (id) => {
             const client = allClients.find(c => c.id === id);
             if (!client) return;
 
             editingId = id;
+            document.getElementById("clientCompany").value = client.company || "";
             document.getElementById("clientName").value = client.name || "";
             document.getElementById("clientEmail").value = client.email || "";
             document.getElementById("clientPhone").value = client.phone || "";
-            document.getElementById("clientCompany").value = client.company || "";
             document.getElementById("clientAddress").value = client.address || "";
             document.getElementById("clientNotes").value = client.notes || "";
 
-            setFormMode("edit");
-            filterAndRender();
-            document.getElementById("formCard").scrollIntoView({ behavior: "smooth", block: "start" });
+            document.getElementById("modalTitleText").textContent = "Edit Client";
+            document.getElementById("modalIcon").className = "fas fa-user-edit me-2";
+            const btn = document.getElementById("submitBtn");
+            btn.className = "btn btn-update text-white px-4";
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Client';
+            clientModal.show();
         };
 
-        window.cancelEdit = () => {
-            editingId = null;
-            document.getElementById("clientForm").reset();
-            setFormMode("add");
-            filterAndRender();
-        };
+        window.submitForm = async () => {
+            const form = document.getElementById("clientForm");
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
-        document.getElementById("clientForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
             const btn = document.getElementById("submitBtn");
             btn.disabled = true;
 
@@ -439,31 +410,26 @@
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
                     await updateDoc(doc(db, "clients", editingId), data);
                     editingId = null;
-                    setFormMode("add");
                 } else {
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
                     data.createdAt = serverTimestamp();
                     await addDoc(clientsRef, data);
                 }
-                e.target.reset();
+                clientModal.hide();
+                form.reset();
                 await loadClients();
             } catch (err) {
                 alert("Error: " + err.message);
             }
 
             btn.disabled = false;
-            setFormMode(editingId ? "edit" : "add");
-        });
+            btn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Client';
+        };
 
         window.deleteClient = async (id) => {
             if (!confirm("Delete this client?")) return;
             try {
                 await deleteDoc(doc(db, "clients", id));
-                if (editingId === id) {
-                    editingId = null;
-                    document.getElementById("clientForm").reset();
-                    setFormMode("add");
-                }
                 await loadClients();
             } catch (err) {
                 alert("Error deleting client: " + err.message);
@@ -475,6 +441,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById("pageContent").style.display = "block";
+                clientModal = new bootstrap.Modal(document.getElementById("clientModal"));
                 AOS.init({ duration: 800, once: true });
                 loadClients();
             } else {
