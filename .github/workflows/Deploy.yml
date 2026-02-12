@@ -1,29 +1,26 @@
-name: Deploy via FTP to IONOS
+name: Deploy via SFTP to IONOS
 
 on:
   push:
     branches:
-      
-main   # or 'master' depending on your repo
+      - main
 
 jobs:
-  ftp-deploy:
+  sftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      
-name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      
-name: Upload files to IONOS via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        local-dir: ./   # what you want to upload
-        server-dir: /   # remote folder on IONOS
-        exclude: |/.git*
-          /.github**/node_modules
+      - name: Upload files to IONOS via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          port: 22
+          local_path: ./
+          remote_path: /
+          sftp_only: true
+          exclude: '.git*,.github*,node_modules'
