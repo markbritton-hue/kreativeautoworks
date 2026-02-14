@@ -119,7 +119,7 @@
         .btn-receipt { background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); color: #60a5fa; font-size: 0.8rem; }
         .btn-receipt:hover { background: #60a5fa; color: #1e293b; }
         .file-upload-wrapper { position: relative; }
-        .file-upload-wrapper input[type="file"] { opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; }
+        .file-upload-wrapper input[type="file"] { display: none; }
         .file-upload-label { display: block; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 6px; cursor: pointer; text-align: center; color: #94a3b8; }
         .file-upload-label:hover { border-color: #60a5fa; color: #60a5fa; }
         .search-box {
@@ -281,10 +281,10 @@
                         <div class="mb-3">
                             <label class="form-label">Receipt Photo</label>
                             <div class="file-upload-wrapper">
-                                <label class="file-upload-label" id="fileLabel">
+                                <label for="receiptPhoto" class="file-upload-label" id="fileLabel">
                                     <i class="fas fa-camera me-2"></i>Choose Photo
                                 </label>
-                                <input type="file" id="receiptPhoto" accept="image/*">
+                                <input type="file" id="receiptPhoto" accept="image/*" capture="environment">
                             </div>
                             <small class="text-muted" style="font-size:0.75rem;">Upload a photo of your receipt (optional)</small>
                         </div>
