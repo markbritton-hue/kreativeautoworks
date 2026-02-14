@@ -427,8 +427,8 @@
             document.getElementById("fileLabel").innerHTML = '<i class="fas fa-camera me-2"></i>Choose Photo';
         }
 
-        // Handle file selection
-        document.addEventListener('DOMContentLoaded', () => {
+        // Handle file selection - will be set up after auth check
+        function setupFileInput() {
             const fileInput = document.getElementById("receiptPhoto");
             const fileLabel = document.getElementById("fileLabel");
             if (fileInput && fileLabel) {
@@ -437,7 +437,7 @@
                     fileLabel.innerHTML = `<i class="fas fa-check-circle me-2"></i>${fileName}`;
                 });
             }
-        });
+        }
 
         window.viewReceipt = (url) => {
             window.open(url, "_blank");
@@ -570,6 +570,7 @@
                 document.getElementById("pageContent").style.display = "block";
                 expenseModal = new bootstrap.Modal(document.getElementById("expenseModal"));
                 AOS.init({ duration: 800, once: true });
+                setupFileInput();
                 await loadExpenses();
             } else {
                 window.location.href = "login.html";
