@@ -116,6 +116,12 @@
         .btn-edit:hover { background: #facc15; color: #1e293b; }
         .btn-delete { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; font-size: 0.8rem; }
         .btn-delete:hover { background: #ef4444; color: white; }
+        .btn-receipt { background: rgba(96, 165, 250, 0.15); border: 1px solid rgba(96, 165, 250, 0.3); color: #60a5fa; font-size: 0.8rem; }
+        .btn-receipt:hover { background: #60a5fa; color: #1e293b; }
+        .file-upload-wrapper { position: relative; }
+        .file-upload-wrapper input[type="file"] { opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; }
+        .file-upload-label { display: block; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 6px; cursor: pointer; text-align: center; color: #94a3b8; }
+        .file-upload-label:hover { border-color: #60a5fa; color: #60a5fa; }
         .search-box {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -272,6 +278,16 @@
                             <label class="form-label">Notes</label>
                             <textarea class="form-control" id="expenseNotes" rows="2" placeholder="Additional notes..."></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Receipt Photo</label>
+                            <div class="file-upload-wrapper">
+                                <label class="file-upload-label" id="fileLabel">
+                                    <i class="fas fa-camera me-2"></i>Choose Photo
+                                </label>
+                                <input type="file" id="receiptPhoto" accept="image/*">
+                            </div>
+                            <small class="text-muted" style="font-size:0.75rem;">Upload a photo of your receipt (optional)</small>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -292,6 +308,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDLwbBlioEmnkTIUi9dTviNtAcnBR59ew0",
@@ -305,6 +322,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         window.logoutUser = async () => { await signOut(auth); window.location.href = "login.html"; };
         const expensesRef = collection(db, "expenses");
@@ -394,6 +412,7 @@
                         ${exp.paymentMethod ? `<div class="expense-detail"><i class="fas fa-credit-card me-2"></i>${escapeHtml(exp.paymentMethod)}</div>` : ""}
                     </div>
                     <div class="card-actions">
+                        ${exp.receiptUrl ? `<button class="btn btn-receipt btn-sm" onclick="window.viewReceipt('${exp.receiptUrl}')" title="View Receipt"><i class="fas fa-image me-1"></i>Receipt</button>` : ""}
                         <button class="btn btn-edit btn-sm" onclick="window.editExpense('${exp.id}')"><i class="fas fa-pen me-1"></i>Edit</button>
                         <button class="btn btn-delete btn-sm" onclick="window.deleteExpense('${exp.id}')" title="Delete"><i class="fas fa-trash"></i></button>
                     </div>
@@ -405,7 +424,24 @@
             document.getElementById("expenseForm").reset();
             editingId = null;
             document.getElementById("expenseDate").value = new Date().toISOString().split("T")[0];
+            document.getElementById("fileLabel").innerHTML = '<i class="fas fa-camera me-2"></i>Choose Photo';
         }
+
+        // Handle file selection
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById("receiptPhoto");
+            const fileLabel = document.getElementById("fileLabel");
+            if (fileInput && fileLabel) {
+                fileInput.addEventListener("change", (e) => {
+                    const fileName = e.target.files[0]?.name || "Choose Photo";
+                    fileLabel.innerHTML = `<i class="fas fa-check-circle me-2"></i>${fileName}`;
+                });
+            }
+        });
+
+        window.viewReceipt = (url) => {
+            window.open(url, "_blank");
+        };
 
         window.openAddModal = () => {
             resetForm();
@@ -429,6 +465,13 @@
             document.getElementById("paymentMethod").value = exp.paymentMethod || "Credit Card";
             document.getElementById("expenseVendor").value = exp.vendor || "";
             document.getElementById("expenseNotes").value = exp.notes || "";
+
+            // Show if receipt exists
+            if (exp.receiptUrl) {
+                document.getElementById("fileLabel").innerHTML = '<i class="fas fa-check-circle me-2"></i>Receipt attached (upload new to replace)';
+            } else {
+                document.getElementById("fileLabel").innerHTML = '<i class="fas fa-camera me-2"></i>Choose Photo';
+            }
 
             document.getElementById("modalTitleText").textContent = "Edit Expense";
             document.getElementById("modalIcon").className = "fas fa-edit me-2";
@@ -457,6 +500,20 @@
             };
 
             try {
+                // Handle receipt photo upload
+                const fileInput = document.getElementById("receiptPhoto");
+                if (fileInput.files[0]) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading receipt...';
+                    const file = fileInput.files[0];
+                    const timestamp = Date.now();
+                    const fileName = `receipts/${timestamp}_${file.name}`;
+                    const storageRef = ref(storage, fileName);
+                    await uploadBytes(storageRef, file);
+                    const downloadURL = await getDownloadURL(storageRef);
+                    data.receiptUrl = downloadURL;
+                    data.receiptPath = fileName;
+                }
+
                 if (editingId) {
                     await updateDoc(doc(db, "expenses", editingId), data);
                 } else {
@@ -477,6 +534,16 @@
         window.deleteExpense = async (id) => {
             if (!confirm("Delete this expense?")) return;
             try {
+                const exp = allExpenses.find(e => e.id === id);
+                // Delete receipt from storage if it exists
+                if (exp?.receiptPath) {
+                    try {
+                        const receiptRef = ref(storage, exp.receiptPath);
+                        await deleteObject(receiptRef);
+                    } catch (err) {
+                        console.log("Receipt already deleted or doesn't exist");
+                    }
+                }
                 await deleteDoc(doc(db, "expenses", id));
                 await loadExpenses();
             } catch (err) { alert("Error deleting expense: " + err.message); }
