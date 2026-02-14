@@ -280,13 +280,21 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Receipt Photo</label>
-                            <div class="file-upload-wrapper">
-                                <label for="receiptPhoto" class="file-upload-label" id="fileLabel">
-                                    <i class="fas fa-camera me-2"></i>Choose Photo
-                                </label>
-                                <input type="file" id="receiptPhoto" accept="image/*" capture="environment">
+                            <div class="d-flex gap-2">
+                                <div class="flex-fill">
+                                    <label for="receiptCamera" class="file-upload-label">
+                                        <i class="fas fa-camera me-2"></i>Take Photo
+                                    </label>
+                                    <input type="file" id="receiptCamera" accept="image/*" capture="environment" style="display:none;">
+                                </div>
+                                <div class="flex-fill">
+                                    <label for="receiptGallery" class="file-upload-label">
+                                        <i class="fas fa-images me-2"></i>Gallery
+                                    </label>
+                                    <input type="file" id="receiptGallery" accept="image/*" style="display:none;">
+                                </div>
                             </div>
-                            <small class="text-muted" style="font-size:0.75rem;">Upload a photo of your receipt (optional)</small>
+                            <small class="text-muted d-block mt-2" style="font-size:0.75rem;" id="receiptStatus">No photo selected</small>
                         </div>
                     </form>
                 </div>
@@ -330,6 +338,7 @@
         let allExpenses = [];
         let editingId = null;
         let expenseModal;
+        let selectedFile = null;
 
         async function loadExpenses() {
             const q = query(expensesRef, orderBy("createdAt", "desc"));
@@ -423,18 +432,36 @@
         function resetForm() {
             document.getElementById("expenseForm").reset();
             editingId = null;
+            selectedFile = null;
             document.getElementById("expenseDate").value = new Date().toISOString().split("T")[0];
-            document.getElementById("fileLabel").innerHTML = '<i class="fas fa-camera me-2"></i>Choose Photo';
+            document.getElementById("receiptCamera").value = "";
+            document.getElementById("receiptGallery").value = "";
+            document.getElementById("receiptStatus").textContent = "No photo selected";
         }
 
         // Handle file selection - will be set up after auth check
         function setupFileInput() {
-            const fileInput = document.getElementById("receiptPhoto");
-            const fileLabel = document.getElementById("fileLabel");
-            if (fileInput && fileLabel) {
-                fileInput.addEventListener("change", (e) => {
-                    const fileName = e.target.files[0]?.name || "Choose Photo";
-                    fileLabel.innerHTML = `<i class="fas fa-check-circle me-2"></i>${fileName}`;
+            const cameraInput = document.getElementById("receiptCamera");
+            const galleryInput = document.getElementById("receiptGallery");
+            const statusEl = document.getElementById("receiptStatus");
+
+            if (cameraInput) {
+                cameraInput.addEventListener("change", (e) => {
+                    if (e.target.files[0]) {
+                        selectedFile = e.target.files[0];
+                        statusEl.innerHTML = `<i class="fas fa-check-circle me-1" style="color:#10b981;"></i>Photo selected: ${selectedFile.name}`;
+                        galleryInput.value = ""; // Clear other input
+                    }
+                });
+            }
+
+            if (galleryInput) {
+                galleryInput.addEventListener("change", (e) => {
+                    if (e.target.files[0]) {
+                        selectedFile = e.target.files[0];
+                        statusEl.innerHTML = `<i class="fas fa-check-circle me-1" style="color:#10b981;"></i>Photo selected: ${selectedFile.name}`;
+                        cameraInput.value = ""; // Clear other input
+                    }
                 });
             }
         }
@@ -467,10 +494,11 @@
             document.getElementById("expenseNotes").value = exp.notes || "";
 
             // Show if receipt exists
+            selectedFile = null;
             if (exp.receiptUrl) {
-                document.getElementById("fileLabel").innerHTML = '<i class="fas fa-check-circle me-2"></i>Receipt attached (upload new to replace)';
+                document.getElementById("receiptStatus").innerHTML = '<i class="fas fa-info-circle me-1" style="color:#60a5fa;"></i>Receipt attached (select new to replace)';
             } else {
-                document.getElementById("fileLabel").innerHTML = '<i class="fas fa-camera me-2"></i>Choose Photo';
+                document.getElementById("receiptStatus").textContent = "No photo selected";
             }
 
             document.getElementById("modalTitleText").textContent = "Edit Expense";
@@ -501,14 +529,12 @@
 
             try {
                 // Handle receipt photo upload
-                const fileInput = document.getElementById("receiptPhoto");
-                if (fileInput.files[0]) {
+                if (selectedFile) {
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading receipt...';
-                    const file = fileInput.files[0];
                     const timestamp = Date.now();
-                    const fileName = `receipts/${timestamp}_${file.name}`;
+                    const fileName = `receipts/${timestamp}_${selectedFile.name}`;
                     const storageRef = ref(storage, fileName);
-                    await uploadBytes(storageRef, file);
+                    await uploadBytes(storageRef, selectedFile);
                     const downloadURL = await getDownloadURL(storageRef);
                     data.receiptUrl = downloadURL;
                     data.receiptPath = fileName;
