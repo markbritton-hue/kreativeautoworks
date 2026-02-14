@@ -297,6 +297,10 @@
                             <small class="text-muted d-block mt-2" style="font-size:0.75rem;" id="receiptStatus">No photo selected</small>
                         </div>
                     </form>
+                    <div id="receiptPreview" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid rgba(96,165,250,0.15);">
+                        <label class="form-label mb-2">Current Receipt</label>
+                        <img id="receiptImage" src="" alt="Receipt" style="width:100%; max-width:400px; border-radius:8px; border:1px solid rgba(96,165,250,0.3);">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-cancel px-4" data-bs-dismiss="modal">
@@ -437,6 +441,7 @@
             document.getElementById("receiptCamera").value = "";
             document.getElementById("receiptGallery").value = "";
             document.getElementById("receiptStatus").textContent = "No photo selected";
+            document.getElementById("receiptPreview").style.display = "none";
         }
 
         // Handle file selection - will be set up after auth check
@@ -495,10 +500,16 @@
 
             // Show if receipt exists
             selectedFile = null;
+            const receiptPreview = document.getElementById("receiptPreview");
+            const receiptImage = document.getElementById("receiptImage");
+
             if (exp.receiptUrl) {
                 document.getElementById("receiptStatus").innerHTML = '<i class="fas fa-info-circle me-1" style="color:#60a5fa;"></i>Receipt attached (select new to replace)';
+                receiptImage.src = exp.receiptUrl;
+                receiptPreview.style.display = "block";
             } else {
                 document.getElementById("receiptStatus").textContent = "No photo selected";
+                receiptPreview.style.display = "none";
             }
 
             document.getElementById("modalTitleText").textContent = "Edit Expense";
