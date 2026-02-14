@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - SW APP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+        }
+        .navbar-brand {
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-control, .form-control:focus, .form-select, .form-select:focus {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #e2e8f0;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+        }
+        .form-control::placeholder { color: #64748b; }
+        .form-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .form-select option { background: #1e293b; color: #e2e8f0; }
+        .btn-add {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            font-weight: 600;
+        }
+        .btn-add:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+        .btn-update {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            font-weight: 600;
+        }
+        .btn-update:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+        .btn-cancel {
+            background: rgba(100, 116, 139, 0.3);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .btn-cancel:hover { background: rgba(100, 116, 139, 0.5); color: #e2e8f0; }
+        .expense-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+        .expense-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .expense-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .expense-category {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .expense-detail {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .expense-detail i { color: #64748b; width: 20px; }
+        .expense-amount {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        .category-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-office { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-travel { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-equipment { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-software { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-utilities { background: rgba(250, 204, 21, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+        .badge-other { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+        .btn-edit { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); color: #facc15; font-size: 0.8rem; }
+        .btn-edit:hover { background: #facc15; color: #1e293b; }
+        .btn-delete { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; font-size: 0.8rem; }
+        .btn-delete:hover { background: #ef4444; color: white; }
+        .search-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #e2e8f0;
+            border-radius: 10px;
+        }
+        .search-box:focus { box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25); border-color: #ef4444; }
+        .search-box::placeholder { color: #64748b; }
+        .expense-count { color: #64748b; font-size: 0.9rem; }
+        .empty-state { color: #475569; padding: 60px 20px; }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #334155; }
+        .card-actions {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid rgba(239, 68, 68, 0.1);
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+        .modal-content {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+        }
+        .modal-header { border-bottom: 1px solid rgba(239, 68, 68, 0.15); }
+        .modal-footer { border-top: 1px solid rgba(239, 68, 68, 0.15); }
+        .btn-close-white { filter: invert(1); }
+    </style>
+</head>
+<body>
+    <div id="pageContent" style="display:none;">
+    <nav class="navbar navbar-dark px-3 mb-4">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-arrow-left me-2"></i>Home
+        </a>
+        <button class="btn btn-sm text-white" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.3); font-weight:600;" onclick="window.logoutUser()">
+            <i class="fas fa-sign-out-alt me-1"></i>Sign Out
+        </button>
+    </nav>
+
+    <div class="container-fluid px-4 pb-5">
+        <h1 class="page-title text-center mb-4" data-aos="fade-down">
+            <i class="fas fa-receipt me-3"></i>Expenses
+        </h1>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4" data-aos="fade-up" data-aos-delay="50">
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(239,68,68,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryTotal" style="font-size:1.8rem; font-weight:800; color:#ef4444;">$0.00</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-dollar-sign me-1"></i> Total</div>
+                    <div id="summaryCount" style="color:#94a3b8; font-size:0.85rem; font-weight:600; margin-top:4px;">0 expenses</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(59,130,246,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryOffice" style="font-size:1.8rem; font-weight:800; color:#3b82f6;">$0.00</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-building me-1"></i> Office</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(168,85,247,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summaryTravel" style="font-size:1.8rem; font-weight:800; color:#a855f7;">$0.00</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-plane me-1"></i> Travel</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div style="background:rgba(30,41,59,0.8); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px;" class="text-center">
+                    <div id="summarySoftware" style="font-size:1.8rem; font-weight:800; color:#10b981;">$0.00</div>
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;"><i class="fas fa-laptop-code me-1"></i> Software</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <input type="text" id="searchBox" class="form-control search-box" placeholder="Search expenses...">
+                    <span id="expenseCount" class="expense-count text-nowrap"></span>
+                    <button class="btn btn-add text-white text-nowrap px-3" onclick="window.openAddModal()">
+                        <i class="fas fa-plus me-2"></i>Add Expense
+                    </button>
+                    <button class="btn btn-sm text-white text-nowrap px-3 py-2" style="background:linear-gradient(135deg,#10b981,#059669); font-weight:600; border:none; border-radius:8px;" onclick="window.exportCSV()">
+                        <i class="fas fa-file-csv me-2"></i>Export CSV
+                    </button>
+                </div>
+                <div id="expenseList" class="expense-grid"></div>
+                <div id="emptyState" class="empty-state text-center" style="display:none;">
+                    <i class="fas fa-receipt d-block"></i>
+                    <p class="fs-5">No expenses yet</p>
+                    <p>Click "Add Expense" to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Create/Edit Expense Modal -->
+    <div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="modalTitle">
+                        <i class="fas fa-plus-circle me-2" id="modalIcon"></i>
+                        <span id="modalTitleText">Add Expense</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <input type="hidden" id="editingId">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Date *</label>
+                                <input type="date" class="form-control" id="expenseDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" id="expenseCategory" required>
+                                    <option value="">-- Select --</option>
+                                    <option value="Office">Office Supplies</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Equipment">Equipment</option>
+                                    <option value="Software">Software</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <input type="text" class="form-control" id="expenseDescription" required placeholder="e.g., Printer paper, Flight to NYC">
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Amount *</label>
+                                <input type="number" class="form-control" id="expenseAmount" required min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Payment Method</label>
+                                <select class="form-select" id="paymentMethod">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit Card" selected>Credit Card</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Check">Check</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vendor/Supplier</label>
+                            <input type="text" class="form-control" id="expenseVendor" placeholder="e.g., Amazon, Delta Airlines">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="expenseNotes" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-add text-white px-4" id="submitBtn" onclick="window.submitExpense()">
+                        <i class="fas fa-save me-2"></i>Save Expense
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLwbBlioEmnkTIUi9dTviNtAcnBR59ew0",
+            authDomain: "markbritton-clients.firebaseapp.com",
+            projectId: "markbritton-clients",
+            storageBucket: "markbritton-clients.firebasestorage.app",
+            messagingSenderId: "147540685673",
+            appId: "1:147540685673:web:102b0f7ba7b0f37ee243f8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.logoutUser = async () => { await signOut(auth); window.location.href = "login.html"; };
+        const expensesRef = collection(db, "expenses");
+
+        let allExpenses = [];
+        let editingId = null;
+        let expenseModal;
+
+        async function loadExpenses() {
+            const q = query(expensesRef, orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            allExpenses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            filterAndRender();
+        }
+
+        function filterAndRender() {
+            const term = document.getElementById("searchBox").value.toLowerCase();
+            const filtered = allExpenses.filter(exp =>
+                (exp.description || "").toLowerCase().includes(term) ||
+                (exp.category || "").toLowerCase().includes(term) ||
+                (exp.vendor || "").toLowerCase().includes(term)
+            );
+            renderExpenses(filtered);
+        }
+
+        function categoryBadgeClass(category) {
+            switch ((category || "").toLowerCase()) {
+                case "office": return "badge-office";
+                case "travel": return "badge-travel";
+                case "equipment": return "badge-equipment";
+                case "software": return "badge-software";
+                case "utilities": return "badge-utilities";
+                default: return "badge-other";
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text || "";
+            return div.innerHTML;
+        }
+
+        function updateSummary() {
+            let total = 0, office = 0, travel = 0, software = 0;
+            allExpenses.forEach(exp => {
+                const amount = Number(exp.amount) || 0;
+                total += amount;
+                switch ((exp.category || "").toLowerCase()) {
+                    case "office": office += amount; break;
+                    case "travel": travel += amount; break;
+                    case "software": software += amount; break;
+                }
+            });
+            document.getElementById("summaryTotal").textContent = `$${total.toFixed(2)}`;
+            document.getElementById("summaryCount").textContent = `${allExpenses.length} expense${allExpenses.length !== 1 ? "s" : ""}`;
+            document.getElementById("summaryOffice").textContent = `$${office.toFixed(2)}`;
+            document.getElementById("summaryTravel").textContent = `$${travel.toFixed(2)}`;
+            document.getElementById("summarySoftware").textContent = `$${software.toFixed(2)}`;
+        }
+
+        function renderExpenses(expenses) {
+            updateSummary();
+            const list = document.getElementById("expenseList");
+            const empty = document.getElementById("emptyState");
+            const count = document.getElementById("expenseCount");
+
+            count.textContent = `${expenses.length} expense${expenses.length !== 1 ? "s" : ""}`;
+
+            if (expenses.length === 0) {
+                list.innerHTML = "";
+                empty.style.display = "block";
+                return;
+            }
+            empty.style.display = "none";
+
+            list.innerHTML = expenses.map(exp => `
+                <div class="expense-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="category-badge ${categoryBadgeClass(exp.category)}">${escapeHtml(exp.category)}</span>
+                        </div>
+                        <div class="expense-amount">$${Number(exp.amount || 0).toFixed(2)}</div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="expense-detail mb-1" style="font-weight:600; color:#e2e8f0; font-size:1rem;">${escapeHtml(exp.description)}</div>
+                        <div class="expense-detail mb-1"><i class="fas fa-calendar me-2"></i>${escapeHtml(exp.date)}</div>
+                        ${exp.vendor ? `<div class="expense-detail mb-1"><i class="fas fa-store me-2"></i>${escapeHtml(exp.vendor)}</div>` : ""}
+                        ${exp.paymentMethod ? `<div class="expense-detail"><i class="fas fa-credit-card me-2"></i>${escapeHtml(exp.paymentMethod)}</div>` : ""}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-edit btn-sm" onclick="window.editExpense('${exp.id}')"><i class="fas fa-pen me-1"></i>Edit</button>
+                        <button class="btn btn-delete btn-sm" onclick="window.deleteExpense('${exp.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function resetForm() {
+            document.getElementById("expenseForm").reset();
+            editingId = null;
+            document.getElementById("expenseDate").value = new Date().toISOString().split("T")[0];
+        }
+
+        window.openAddModal = () => {
+            resetForm();
+            document.getElementById("modalTitleText").textContent = "Add Expense";
+            document.getElementById("modalIcon").className = "fas fa-plus-circle me-2";
+            const btn = document.getElementById("submitBtn");
+            btn.className = "btn btn-add text-white px-4";
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
+            expenseModal.show();
+        };
+
+        window.editExpense = (id) => {
+            const exp = allExpenses.find(e => e.id === id);
+            if (!exp) return;
+
+            editingId = id;
+            document.getElementById("expenseDate").value = exp.date || "";
+            document.getElementById("expenseCategory").value = exp.category || "";
+            document.getElementById("expenseDescription").value = exp.description || "";
+            document.getElementById("expenseAmount").value = exp.amount || "";
+            document.getElementById("paymentMethod").value = exp.paymentMethod || "Credit Card";
+            document.getElementById("expenseVendor").value = exp.vendor || "";
+            document.getElementById("expenseNotes").value = exp.notes || "";
+
+            document.getElementById("modalTitleText").textContent = "Edit Expense";
+            document.getElementById("modalIcon").className = "fas fa-edit me-2";
+            const btn = document.getElementById("submitBtn");
+            btn.className = "btn btn-update text-white px-4";
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Expense';
+            expenseModal.show();
+        };
+
+        window.submitExpense = async () => {
+            const form = document.getElementById("expenseForm");
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+            const data = {
+                date: document.getElementById("expenseDate").value,
+                category: document.getElementById("expenseCategory").value,
+                description: document.getElementById("expenseDescription").value.trim(),
+                amount: parseFloat(document.getElementById("expenseAmount").value),
+                paymentMethod: document.getElementById("paymentMethod").value,
+                vendor: document.getElementById("expenseVendor").value.trim(),
+                notes: document.getElementById("expenseNotes").value.trim()
+            };
+
+            try {
+                if (editingId) {
+                    await updateDoc(doc(db, "expenses", editingId), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    await addDoc(expensesRef, data);
+                }
+                expenseModal.hide();
+                resetForm();
+                await loadExpenses();
+            } catch (err) {
+                alert("Error saving expense: " + err.message);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
+        };
+
+        window.deleteExpense = async (id) => {
+            if (!confirm("Delete this expense?")) return;
+            try {
+                await deleteDoc(doc(db, "expenses", id));
+                await loadExpenses();
+            } catch (err) { alert("Error deleting expense: " + err.message); }
+        };
+
+        window.exportCSV = () => {
+            if (allExpenses.length === 0) { alert("No expenses to export."); return; }
+            const headers = ["Date", "Category", "Description", "Amount", "Payment Method", "Vendor", "Notes"];
+            const rows = allExpenses.map(exp => [
+                exp.date||"", exp.category||"", exp.description||"", Number(exp.amount||0).toFixed(2),
+                exp.paymentMethod||"", exp.vendor||"", (exp.notes||"").replace(/"/g,'""')
+            ]);
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = `expenses_export_${new Date().toISOString().split("T")[0]}.csv`; a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        document.getElementById("searchBox").addEventListener("input", filterAndRender);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById("pageContent").style.display = "block";
+                expenseModal = new bootstrap.Modal(document.getElementById("expenseModal"));
+                AOS.init({ duration: 800, once: true });
+                await loadExpenses();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+    </script>
+</body>
+</html>
