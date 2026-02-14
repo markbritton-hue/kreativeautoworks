@@ -542,15 +542,24 @@
                 // Handle receipt photo upload
                 if (selectedFile) {
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading receipt...';
-                    const timestamp = Date.now();
-                    const fileName = `receipts/${timestamp}_${selectedFile.name}`;
-                    const storageRef = ref(storage, fileName);
-                    await uploadBytes(storageRef, selectedFile);
-                    const downloadURL = await getDownloadURL(storageRef);
-                    data.receiptUrl = downloadURL;
-                    data.receiptPath = fileName;
+                    try {
+                        const timestamp = Date.now();
+                        const fileName = `receipts/${timestamp}_${selectedFile.name}`;
+                        const storageRef = ref(storage, fileName);
+                        await uploadBytes(storageRef, selectedFile);
+                        const downloadURL = await getDownloadURL(storageRef);
+                        data.receiptUrl = downloadURL;
+                        data.receiptPath = fileName;
+                    } catch (uploadErr) {
+                        console.error("Upload error:", uploadErr);
+                        alert("Error uploading receipt: " + uploadErr.message + "\n\nMake sure Firebase Storage is enabled in your Firebase console.");
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
+                        return;
+                    }
                 }
 
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
                 if (editingId) {
                     await updateDoc(doc(db, "expenses", editingId), data);
                 } else {
@@ -561,11 +570,12 @@
                 resetForm();
                 await loadExpenses();
             } catch (err) {
+                console.error("Save error:", err);
                 alert("Error saving expense: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
             }
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
         };
 
         window.deleteExpense = async (id) => {
