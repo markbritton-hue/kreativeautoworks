@@ -23,6 +23,6 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: 22
           local_path: ./
-          remote_path: /swapp
+          remote_path: '/swapp/'
           sftp_only: true
           exclude: '[".git", ".github", "node_modules"]'
