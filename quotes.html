@@ -368,6 +368,10 @@
         const BUSINESS_NAME = "StreamWave Productions";
         const BUSINESS_ADDRESS = "58098 Kerr Creek Rd, Three Rivers, Michigan 49093";
 
+        function formatMoney(n) {
+            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function generateQuoteNumber() {
             const now = new Date();
             const y = now.getFullYear().toString().slice(-2);
@@ -444,13 +448,13 @@
                 }
             });
             document.getElementById("summaryDraft").textContent = draft;
-            document.getElementById("summaryDraftTotal").textContent = `$${draftTotal.toFixed(2)}`;
+            document.getElementById("summaryDraftTotal").textContent = `$${formatMoney(draftTotal)}`;
             document.getElementById("summarySent").textContent = sent;
-            document.getElementById("summarySentTotal").textContent = `$${sentTotal.toFixed(2)}`;
+            document.getElementById("summarySentTotal").textContent = `$${formatMoney(sentTotal)}`;
             document.getElementById("summaryAccepted").textContent = accepted;
-            document.getElementById("summaryAcceptedTotal").textContent = `$${acceptedTotal.toFixed(2)}`;
+            document.getElementById("summaryAcceptedTotal").textContent = `$${formatMoney(acceptedTotal)}`;
             document.getElementById("summaryDeclined").textContent = declined;
-            document.getElementById("summaryDeclinedTotal").textContent = `$${declinedTotal.toFixed(2)}`;
+            document.getElementById("summaryDeclinedTotal").textContent = `$${formatMoney(declinedTotal)}`;
         }
 
         function renderQuotes(quotes) {
@@ -475,7 +479,7 @@
                             <span class="quote-number">${escapeHtml(q.quoteNumber)}</span>
                             <span class="badge ${statusBadgeClass(q.status)} rounded-pill px-2 py-1" style="font-size:0.75rem;">${escapeHtml(q.status)}</span>
                         </div>
-                        <div class="quote-total">$${Number(q.total || 0).toFixed(2)}</div>
+                        <div class="quote-total">$${formatMoney(q.total || 0)}</div>
                     </div>
                     <div class="flex-grow-1">
                         <div class="quote-detail mb-1"><i class="fas fa-building me-2"></i>${escapeHtml(q.clientName)}</div>
@@ -529,7 +533,7 @@
                         </div>
                         <div class="col-auto" style="width:90px;">
                             <label class="form-label" style="font-size:0.75rem;">Total</label>
-                            <div class="form-control form-control-sm" style="background:transparent; border-color:transparent; color:#10b981; font-weight:600;">$${(item.quantity * item.unitPrice).toFixed(2)}</div>
+                            <div class="form-control form-control-sm" style="background:transparent; border-color:transparent; color:#10b981; font-weight:600;">$${formatMoney(item.quantity * item.unitPrice)}</div>
                         </div>
                         <div class="col-auto">
                             <button type="button" class="btn btn-remove-line" onclick="window.removeLineItem(${i})"><i class="fas fa-times"></i></button>
@@ -552,9 +556,9 @@
             const taxRate = parseFloat(document.getElementById("taxRate").value) || 0;
             const tax = subtotal * (taxRate / 100);
             const total = subtotal + tax;
-            document.getElementById("subtotalDisplay").textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById("taxDisplay").textContent = `$${tax.toFixed(2)}`;
-            document.getElementById("totalDisplay").textContent = `$${total.toFixed(2)}`;
+            document.getElementById("subtotalDisplay").textContent = `$${formatMoney(subtotal)}`;
+            document.getElementById("taxDisplay").textContent = `$${formatMoney(tax)}`;
+            document.getElementById("totalDisplay").textContent = `$${formatMoney(total)}`;
         }
 
         document.getElementById("taxRate").addEventListener("input", recalcTotals);
@@ -678,8 +682,8 @@
                 <tr>
                     <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb;">${escapeHtml(li.description)}</td>
                     <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:center;">${li.quantity}</td>
-                    <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">$${Number(li.unitPrice).toFixed(2)}</td>
-                    <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">$${(li.quantity * li.unitPrice).toFixed(2)}</td>
+                    <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">$${formatMoney(li.unitPrice)}</td>
+                    <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">$${formatMoney(li.quantity * li.unitPrice)}</td>
                 </tr>
             `).join("");
 
@@ -725,9 +729,9 @@
     </table>
     <div style="display:flex; justify-content:flex-end;">
         <div style="width:260px;">
-            <div style="display:flex; justify-content:space-between; padding:6px 0; color:#6b7280;"><span>Subtotal</span><span>$${Number(q.subtotal).toFixed(2)}</span></div>
-            <div style="display:flex; justify-content:space-between; padding:6px 0; color:#6b7280;"><span>Tax (${q.taxRate}%)</span><span>$${Number(q.tax).toFixed(2)}</span></div>
-            <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:1.3rem; font-weight:700; border-top:2px solid #10b981; margin-top:6px; color:#1f2937;"><span>Total</span><span>$${Number(q.total).toFixed(2)}</span></div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0; color:#6b7280;"><span>Subtotal</span><span>$${formatMoney(q.subtotal)}</span></div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0; color:#6b7280;"><span>Tax (${q.taxRate}%)</span><span>$${formatMoney(q.tax)}</span></div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:1.3rem; font-weight:700; border-top:2px solid #10b981; margin-top:6px; color:#1f2937;"><span>Total</span><span>$${formatMoney(q.total)}</span></div>
         </div>
     </div>
     ${q.notes ? `<div style="margin-top:30px; padding:16px; background:#f9fafb; border-radius:10px; border-left:4px solid #10b981;">
@@ -763,7 +767,7 @@
             try {
                 await html2pdf().set({ margin: 0.3, filename: `${q.quoteNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(container).save();
                 const subject = encodeURIComponent(`Quote ${q.quoteNumber} from ${BUSINESS_NAME}`);
-                const body = encodeURIComponent(`Hi ${q.clientName},\n\nPlease find attached quote ${q.quoteNumber} for $${Number(q.total).toFixed(2)}.\n\nThank you,\n${BUSINESS_NAME}`);
+                const body = encodeURIComponent(`Hi ${q.clientName},\n\nPlease find attached quote ${q.quoteNumber} for $${formatMoney(q.total)}.\n\nThank you,\n${BUSINESS_NAME}`);
                 window.location.href = `mailto:${clientEmail}?subject=${subject}&body=${body}`;
             } catch (err) { alert("Error generating PDF: " + err.message); }
             document.body.removeChild(container);
