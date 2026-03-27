@@ -366,7 +366,7 @@
         let quoteModal;
 
         const BUSINESS_NAME = "StreamWave Productions";
-        const BUSINESS_ADDRESS = "58098 Kerr Creek Rd";
+        const BUSINESS_ADDRESS = "58098 Kerr Creek Rd, Three Rivers, Michigan 49093";
 
         function generateQuoteNumber() {
             const now = new Date();
@@ -698,7 +698,7 @@
         <button onclick="window.print()" style="padding:10px 24px; background:#34d399; color:#fff; border:none; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:600;">&#128424; Print / Save PDF</button>
     </div>` : ""}
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
-        <div>${logoHtml}<h2 style="margin:0 0 4px 0; color:#1f2937;">${escapeHtml(q.businessName)}</h2><p style="margin:0; color:#6b7280; font-size:0.95rem;">${escapeHtml(q.businessAddress)}</p></div>
+        <div>${logoHtml}<h2 style="margin:0 0 4px 0; color:#1f2937;">${escapeHtml(q.businessName)}</h2><p style="margin:0; color:#6b7280; font-size:0.95rem;">${escapeHtml(BUSINESS_ADDRESS)}</p></div>
         <div style="text-align:right;">
             <h1 style="margin:0 0 8px 0; font-size:2rem; color:#10b981;">QUOTE</h1>
             <p style="margin:2px 0; font-size:0.95rem;"><strong>${escapeHtml(q.quoteNumber)}</strong></p>
