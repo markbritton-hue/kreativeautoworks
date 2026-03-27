@@ -354,6 +354,10 @@
         window.logoutUser = async () => { await signOut(auth); window.location.href = "login.html"; };
         const expensesRef = collection(db, "expenses");
 
+        function formatMoney(n) {
+            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         let allExpenses = [];
         let editingId = null;
         let expenseModal;
@@ -403,11 +407,11 @@
                     case "software": software += amount; break;
                 }
             });
-            document.getElementById("summaryTotal").textContent = `$${total.toFixed(2)}`;
+            document.getElementById("summaryTotal").textContent = `$${formatMoney(total)}`;
             document.getElementById("summaryCount").textContent = `${allExpenses.length} expense${allExpenses.length !== 1 ? "s" : ""}`;
-            document.getElementById("summaryEquipment").textContent = `$${equipment.toFixed(2)}`;
-            document.getElementById("summaryTravel").textContent = `$${travel.toFixed(2)}`;
-            document.getElementById("summarySoftware").textContent = `$${software.toFixed(2)}`;
+            document.getElementById("summaryEquipment").textContent = `$${formatMoney(equipment)}`;
+            document.getElementById("summaryTravel").textContent = `$${formatMoney(travel)}`;
+            document.getElementById("summarySoftware").textContent = `$${formatMoney(software)}`;
         }
 
         function renderExpenses(expenses) {
@@ -431,7 +435,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="category-badge ${categoryBadgeClass(exp.category)}">${escapeHtml(exp.category)}</span>
                         </div>
-                        <div class="expense-amount">$${Number(exp.amount || 0).toFixed(2)}</div>
+                        <div class="expense-amount">$${formatMoney(exp.amount || 0)}</div>
                     </div>
                     <div class="flex-grow-1">
                         <div class="expense-detail mb-1" style="font-weight:600; color:#e2e8f0; font-size:1rem;">${escapeHtml(exp.description)}</div>
