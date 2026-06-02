@@ -28,13 +28,13 @@ jobs:
         id: version
         run: |
           CURRENT=$(grep -oP 'v\d+\.\d+\.\d+' index.html | head -1)
-          MAJOR=$(echo "$CURRENT" | grep -oP '\d+' | sed -n '1p')
-          MINOR=$(echo "$CURRENT" | grep -oP '\d+' | sed -n '2p')
-          PATCH=$(echo "$CURRENT" | grep -oP '\d+' | sed -n '3p')
+          MAJOR=$(echo "$CURRENT" | cut -d. -f1 | sed 's/v//')
+          MINOR=$(echo "$CURRENT" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT" | cut -d. -f3)
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
           NEW_DATE=$(date +'%B %d, %Y')
-          sed -i "s/v${MAJOR}\.${MINOR}\.${NEW_PATCH}/${NEW_VERSION}/" index.html
+          sed -i "s/${CURRENT}/${NEW_VERSION}/" index.html
           sed -i -E "s/[A-Z][a-z]+ [0-9]{2}, [0-9]{4}/${NEW_DATE}/" index.html
           echo "VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "DATE=${NEW_DATE}" >> $GITHUB_OUTPUT
