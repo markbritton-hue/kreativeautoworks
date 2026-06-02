@@ -1,4 +1,4 @@
-name: Deploy via SFTP to IONOS
+name: Version and Release
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  version-and-deploy:
+  version-and-release:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     steps:
@@ -28,7 +28,7 @@ jobs:
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
           NEW_DATE=$(date +'%B %d, %Y')
-          sed -i "s/v${MAJOR}\.${MINOR}\.${PATCH}/${NEW_VERSION}/" index.html
+          sed -i "s/v${MAJOR}\.${MINOR}\.${NEW_PATCH}/${NEW_VERSION}/" index.html
           sed -i -E "s/[A-Z][a-z]+ [0-9]{2}, [0-9]{4}/${NEW_DATE}/" index.html
           echo "VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "DATE=${NEW_DATE}" >> $GITHUB_OUTPUT
@@ -49,18 +49,4 @@ jobs:
         run: |
           gh release create "${{ steps.version.outputs.VERSION }}" \
             --title "${{ steps.version.outputs.VERSION }} — ${{ steps.version.outputs.DATE }}" \
-            --notes "Deployed on ${{ steps.version.outputs.DATE }}"
-
-      - name: Remove git folders before upload
-        run: rm -rf .git .github
-
-      - name: Upload files to IONOS via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          port: 22
-          local_path: './*'
-          remote_path: '/swapp/'
-          sftp_only: true
+            --notes "Released on ${{ steps.version.outputs.DATE }}"
