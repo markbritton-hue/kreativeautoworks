@@ -634,7 +634,7 @@
 
             const data = {
                 clientId, clientName: clientObj ? (clientObj.company || clientObj.name) : "",
-                businessName: BUSINESS_NAME, businessAddress: BUSINESS_ADDRESS, logoUrl: "Logo.png",
+                businessName: BUSINESS_NAME, businessAddress: BUSINESS_ADDRESS, logoUrl: "KreativeautoWorks-Logo.png",
                 quoteNumber: document.getElementById("quoteNumber").value.trim(),
                 date: document.getElementById("quoteDate").value,
                 validUntil: document.getElementById("validUntil").value,
@@ -687,7 +687,7 @@
                 </tr>
             `).join("");
 
-            const logoSrc = q.logoUrl || "Logo.png";
+            const logoSrc = q.logoUrl || "KreativeautoWorks-Logo.png";
             const logoHtml = `<img src="${escapeHtml(logoSrc)}" style="max-height:80px; max-width:250px; margin-bottom:10px;" alt="Logo">`;
             const statusColor = { "Accepted": "#10b981", "Sent": "#f59e0b", "Declined": "#ef4444", "Draft": "#6b7280" }[q.status] || "#6b7280";
 

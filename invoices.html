@@ -635,7 +635,7 @@
 
             const data = {
                 clientId, clientName: clientObj ? (clientObj.company || clientObj.name) : "",
-                businessName: BUSINESS_NAME, businessAddress: BUSINESS_ADDRESS, logoUrl: "Logo.png",
+                businessName: BUSINESS_NAME, businessAddress: BUSINESS_ADDRESS, logoUrl: "KreativeautoWorks-Logo.png",
                 invoiceNumber: document.getElementById("invoiceNumber").value.trim(),
                 date: document.getElementById("invoiceDate").value,
                 dueDate: document.getElementById("dueDate").value,
@@ -689,7 +689,7 @@
                 </tr>
             `).join("");
 
-            const logoSrc = inv.logoUrl || "Logo.png";
+            const logoSrc = inv.logoUrl || "KreativeautoWorks-Logo.png";
             const logoHtml = `<img src="${escapeHtml(logoSrc)}" style="max-height:80px; max-width:250px; margin-bottom:10px;" alt="Logo">`;
             const statusColor = { "Paid": "#10b981", "Sent": "#f59e0b", "Overdue": "#ef4444", "Draft": "#6b7280" }[inv.status] || "#6b7280";
 
