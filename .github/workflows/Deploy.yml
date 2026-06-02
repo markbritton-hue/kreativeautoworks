@@ -1,4 +1,4 @@
-name: Version and Release
+name: Version, Release, and Deploy to GitHub Pages
 
 on:
   push:
@@ -7,9 +7,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  version-and-release:
+  version-release-deploy:
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     steps:
@@ -50,3 +56,15 @@ jobs:
           gh release create "${{ steps.version.outputs.VERSION }}" \
             --title "${{ steps.version.outputs.VERSION }} — ${{ steps.version.outputs.DATE }}" \
             --notes "Released on ${{ steps.version.outputs.DATE }}"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
